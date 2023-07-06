@@ -1,13 +1,22 @@
-FROM python:3.8-slim-buster
+# Используйте образ Python в качестве базового
+FROM python:3.8-slim
 
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Устанавливаем зависимости Python
+COPY requirements.txt /app/requirements.txt
 WORKDIR /app
-
-COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Копируем исходный код приложения
+COPY app /app
 
-EXPOSE 5000
+# Устанавливаем переменные окружения
+ENV FLASK_APP=main.py
+ENV FLASK_ENV=development
 
-CMD ["python", "app.py"]
+# Запускаем приложение
+CMD ["flask", "run", "--host=0.0.0.0"]
